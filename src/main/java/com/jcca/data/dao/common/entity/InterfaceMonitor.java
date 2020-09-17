@@ -1,6 +1,7 @@
 package com.jcca.data.dao.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;
@@ -34,6 +35,9 @@ public class InterfaceMonitor implements Serializable {
     private String collectDate;
 
     private Long intervalMs;
+    private Long inBytesDiff;
+    private Long outBytesDiff;
+
 
 
 }

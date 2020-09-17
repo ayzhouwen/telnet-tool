@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jcca.common.bean.ResultVo;
 import com.jcca.common.config.mybits.PagePlugin;
+import com.jcca.common.util.MyDateUtil;
 import com.jcca.data.dao.common.entity.InterfaceMonitor;
 import com.jcca.data.dao.common.mapper.InterfaceMonitorMapper;
 import com.jcca.logic.middle.business.IInterfaceMonitorService;
@@ -46,11 +47,13 @@ public class BusinessController {
 
         IPage<InterfaceMonitor> pageObj = PagePlugin.startPageT(page, limit, InterfaceMonitor.class);
         QueryWrapper<InterfaceMonitor> query = new QueryWrapper<InterfaceMonitor>();
-        query.orderByAsc("collect_date");
+        query.orderByDesc("collect_date");
         IPage<InterfaceMonitor> result = interfaceMonitorService.page(pageObj, query);
         List<InterfaceMonitor> list = result.getRecords();
         if (!list.isEmpty()) {
-
+            list.forEach(e->{
+                e.setCollectDate(MyDateUtil.yyyyMMddHHmmss2Date(e.getCollectDate()).toString());
+            });
         }
         Map resultMap=new HashMap();
         resultMap.put("total",pageObj.getTotal());

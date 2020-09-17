@@ -1,17 +1,24 @@
 package com.jcca.logic.middle.collect.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jcca.common.config.mybits.PagePlugin;
+import com.jcca.common.util.MyDateUtil;
 import com.jcca.common.util.MyIdUtil;
 import com.jcca.common.util.TelnetUtil;
 import com.jcca.data.dao.common.entity.InterfaceMonitor;
 import com.jcca.data.dao.common.mapper.InterfaceMonitorMapper;
+import com.jcca.logic.middle.business.IInterfaceMonitorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,6 +61,9 @@ public class CollectInterfaceImpl {
     @Autowired
     private InterfaceMonitorMapper interfaceMonitorMapper;
 
+    @Autowired
+    private IInterfaceMonitorService interfaceMonitorService;
+
     public void init(){
         selfThread=new Thread(()->{
             while (true){
@@ -64,17 +74,34 @@ public class CollectInterfaceImpl {
                         //  System.setOut(new PrintStream("D:/telnet.txt"));
                         telnet.connect();
                         String data=telnet.getInterfaceData();
+                        Date now=new Date();
                         long inBytes= analysisData("packets input,",data);
                         long outBytes= analysisData("packets output,",data);
                         telnet.disconnect();
                         InterfaceMonitor interfaceMonitor=new InterfaceMonitor();
                         interfaceMonitor.setIp(ip);
-                        interfaceMonitor.setCollectDate(DateUtil.format(new Date(), "yyyyMMddHHmmss"));
+                        interfaceMonitor.setCollectDate(DateUtil.format(now, "yyyyMMddHHmmss"));
                         interfaceMonitor.setId(MyIdUtil.getIncId());
                         interfaceMonitor.setInBytes(inBytes);
                         interfaceMonitor.setOutBytes(outBytes);
                         interfaceMonitor.setInterfaceName(interfaceName);
                         interfaceMonitor.setIntervalMs(intervalMs);
+                        interfaceMonitor.setInBytesDiff(0L);
+                        interfaceMonitor.setOutBytesDiff(0L);
+
+                        //获取上次的最新数据
+                        IPage<InterfaceMonitor> pageObj = PagePlugin.startPageT(1, 1, InterfaceMonitor.class);
+                        QueryWrapper<InterfaceMonitor> query = new QueryWrapper<InterfaceMonitor>();
+                        query.orderByDesc("id");
+                        IPage<InterfaceMonitor> result = interfaceMonitorService.page(pageObj, query);
+                        List<InterfaceMonitor> list = result.getRecords();
+                        if (CollUtil.isNotEmpty(list)){
+                            InterfaceMonitor prev=list.get(0);
+                            interfaceMonitor.setInBytesDiff(interfaceMonitor.getInBytes()-prev.getInBytes());
+                            interfaceMonitor.setOutBytesDiff(interfaceMonitor.getOutBytes()-prev.getOutBytes());
+                            interfaceMonitor.setIntervalMs(DateUtil.betweenMs(now, MyDateUtil.yyyyMMddHHmmss2Date(prev.getCollectDate())));
+                        }
+
                         interfaceMonitorMapper.insert(interfaceMonitor);
                     }
                     try {

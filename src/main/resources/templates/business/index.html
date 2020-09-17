@@ -62,17 +62,31 @@
             , {field: 'id',  title: 'id'}
             , {field: 'ip', title: '设备ip'}
             , {field: 'interfaceName', title: '端口名称'}
-            , {field: 'inBytes', title: '流入字节数'}
-            , {field: 'outBytes',  title: '流出字节数'}
-            , {field: 'intervalMs',  title: '采集间隔(毫秒)'}
+            // , {field: 'inBytes', title: '流入字节数'}
+            // , {field: 'outBytes',  title: '流出字节数'}
+			// 	, {field: 'kbin', title: '流入KB数'}
+			// 	, {field: 'kbout',  title: '流出KB数'}
+				, {field: 'kbinBytesDiff', title: '差值流入KB数'}
+				, {field: 'kboutBytesDiff',  title: '差值流出KB数'}
+				, {field: 'inRate', title: '流入速率KB/S'}
+				, {field: 'outRate',  title: '流出速率KB/S'}
+            , {field: 'interval',  title: '采集间隔(秒)'}
             , {field: 'collectDate',  title: '采集时间'}
         ]]
             ,parseData:function(res){ //res 即为原始返回的数据
 
               var list=res.data.list;
-              // for (var i = 0; i <list.length ; i++) {
-              //
-              // }
+              for (var i = 0; i <list.length ; i++) {
+				  var e=list[i];
+				  // e.kbin=1*e.inBytes/1024;
+				  // e.kbout=1*e.outBytes/1024;
+				  e.kbinBytesDiff=toDecimal(e.inBytesDiff/1024,2);
+				  e.kboutBytesDiff=toDecimal(e.inBytesDiff/1024,2);
+				  e.inRate=toDecimal(1000*e.kbinBytesDiff/e.intervalMs,2)
+				  e.outRate=toDecimal(1000*e.kboutBytesDiff/e.intervalMs,2)
+				  e.interval=e.intervalMs/1000
+
+              }
 
               return {
                   "code": res.code, //解析接口状态
@@ -97,6 +111,23 @@
 
     });
 
+	function toDecimal(x, n) {
+		var num = arguments[1] ? arguments[1] : 2;
+		n=num;
+		var f = parseFloat(x);
+		function  getN(n){
+			var sum =1;
+			for (var i=0 ;i< n;i++){
+				sum*=10;
+			}
+			return sum ;
+		}
+		if (isNaN(f)) {
+			return 0;
+		}
 
+		f = Math.round(x * getN(n)) / getN(n);
+		return f;
+	}
 </script>
 </html>
