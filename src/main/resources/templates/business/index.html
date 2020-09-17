@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{../layui/css/layui.css}">
+</head>
+<body>
+
+<div>
+
+
+
+
+  	
+	<div style="height: 20px;"></div>
+
+  	<div style="height: 20px;"></div>
+  	
+</div>
+<table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</body>
+
+<style>
+    .layui-table-view .layui-table[lay-size=lg] .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell, .layui-table-tool-panel li {
+        overflow: hidden;
+        text-overflow: inherit;
+        white-space: inherit;
+    }
+
+    .layui-table-cell {
+         padding: inherit
+
+    }
+
+	.layui-table-cell{
+		height:36px;
+		line-height: 36px;
+	}
+</style>
+<script th:src="@{../layui/layui.js}"></script>
+<script th:inline="none">
+    layui.use(['table', 'form','layer'], function () {
+        var $ = layui.jquery,
+        table = layui.table;
+        var layer = layui.layer;
+      	var opt=  {
+			page: true
+            ,id:"table1"
+            ,elem: '#dataTable'
+            ,type:'checkbox'
+            , url: '/business/list'
+            , method: 'post'
+			, cellMinWidth: 200
+            , cols: [[
+            {title: '序号', type: 'numbers'}
+            // , {type:'checkbox'}
+            , {field: 'id',  title: 'id'}
+            , {field: 'ip', title: '设备ip'}
+            , {field: 'interfaceName', title: '端口名称'}
+            , {field: 'inBytes', title: '流入字节数'}
+            , {field: 'outBytes',  title: '流出字节数'}
+            , {field: 'intervalMs',  title: '采集间隔(毫秒)'}
+            , {field: 'collectDate',  title: '采集时间'}
+        ]]
+            ,parseData:function(res){ //res 即为原始返回的数据
+
+              var list=res.data.list;
+              // for (var i = 0; i <list.length ; i++) {
+              //
+              // }
+
+              return {
+                  "code": res.code, //解析接口状态
+                  "msg": res.message, //解析提示文本
+                  "count": res.data.total, //解析数据长度
+                  "data": list //解析数据列表
+              };
+        }
+        }
+        table.render(opt);
+      	//单击变色
+		table.on('row(dataTable)', function(obj){
+			//console.log(obj.tr) //得到当前行元素对象
+			$('tr').removeClass("layui-bg-green")
+			$(obj.tr).addClass("layui-bg-green")
+		});
+
+
+
+
+
+
+    });
+
+
+</script>
+</html>

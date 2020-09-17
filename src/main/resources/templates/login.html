@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <title>采集器</title>
+    <title>流量监控</title>
     <link rel="stylesheet" th:href="@{layui/css/layui.css}">
 </head>
 <body class="layui-layout-body">
@@ -21,7 +21,7 @@
         <div class="layui-side-scroll">
             <ul class="layui-nav layui-nav-tree">
                 <li class="layui-nav-item">
-                    <a lay-herf="/task/index">流量监控记录</a>
+                    <a lay-herf="/business/index">流量监控记录</a>
                 </li>
                 <li class="layui-nav-item">
                     <a lay-herf="/sql/index">数据查询</a>
@@ -32,7 +32,7 @@
 
     <!-- 右侧内容 -->
     <div class="layui-body" style="padding: 15px;">
-        <iframe src="/task/index" frameborder="0" style="width: 100%;height: 100%"></iframe>
+        <iframe src="/business/index" frameborder="0" style="width: 100%;height: 100%"></iframe>
     </div>
 
     <!-- 页脚 -->

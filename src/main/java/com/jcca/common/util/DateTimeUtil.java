@@ -313,7 +313,6 @@ public final class DateTimeUtil {
     
     public static void main(String[] args) {
     	String aa = DateTimeUtil.getPlusAmountDateTime();
-    	System.out.println(aa);
     }
     
     /**

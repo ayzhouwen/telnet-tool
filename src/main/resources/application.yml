@@ -5,7 +5,7 @@ logging:
 spring:
   datasource:
 #    url: jdbc:sqlite:D:\\wrapper\\lib\\collect.db
-    url: jdbc:sqlite:D:\\zw\\test\\sqlitedbtmp\\c2.0\\collect.db
+    url: jdbc:sqlite:D:\zw\test\sqlitedbtmp\路由监控\\monitor.db
     driver-class-name: org.sqlite.JDBC
 
   thymeleaf:
@@ -18,7 +18,7 @@ spring:
     suffix: .html
 
 server:
-  port: 9083
+  port: 9084
   compression:
     min-response-size: 512
     enabled: true
@@ -34,6 +34,22 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     # 打印sql
   log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+route:
+  ip: 192.168.59.1
+  telnet-port: 23
+  #用户名
+  user: cisco
+  #登录密码
+  password: Pwd@1234
+  #特权密码
+  password2: cisco
+  #采集端口
+  interface-name: Serial0/1/0:0
+  #采集周期毫秒数
+  interval-ms: 10000
+
 
 
 
