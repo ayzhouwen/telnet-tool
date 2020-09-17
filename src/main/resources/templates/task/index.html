@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{../layui/css/layui.css}">
+</head>
+<body>
+
+<div>
+	<div class="layui-row">
+  		<div class="layui-col-xs6">
+  			<div style="height: 30px;line-height: 30px;">
+  				<div style="float: left;width: 60%;">
+		            <input class="layui-input" id="ztrwtext"  placeholder="请输入暂停任务名称">
+  				</div>
+  				<div style="float: left;width: 30%;">
+			        <button type="button" class="layui-btn ztrwbtn">暂停</button>
+  				</div>
+  			</div>
+  		</div>
+  		<div class="layui-col-xs6">
+			<div style="float: left;width: 60%;">
+	            <input class="layui-input" id="hfrwtext"  placeholder="请输入恢复任务名称">
+			</div>
+			<div style="float: left;width: 30%;">
+	        	<button type="button" class="layui-btn hfrwtbtn">恢复</button>
+			</div>
+  		</div>
+  	</div>
+
+  	
+  	<div class="layui-row" style="margin-top: 10px">
+  		<div class="layui-col-xs6">
+  			<div style="float: left;width: 60%;">
+	        	<select name="orgId" style="height: 38px;width: 100%;" lay-search lay-filter="station" id="searchTask"></select>
+			</div>
+			<div style="float: left;width: 30%;">
+	        	<button type="button" class="layui-btn searchTab">按指标搜索任务</button>
+			</div>
+  		</div>
+  	</div>
+
+	<div class="layui-row" style="margin-top:10px">
+		<div class="layui-col-xs6">
+			<div style="float: left;width: 30%;">
+				<input class="layui-input" id="ipsearchTaskInput"  placeholder="请输入资产ip"></button>
+			</div>
+			<div style="float: left;width: 30%;">
+				<button type="button" class="layui-btn" id="searchTask2">按IP搜索任务</button>
+			</div>
+		</div>
+	</div>
+  	
+	<div style="height: 20px;"></div>
+  	
+	<div class="layui-row">
+	    <div class="layui-col-xs3">
+	    	<button type="button" class="layui-btn pauseAll">暂停所有任务</button>
+	    </div>
+	    <div class="layui-col-xs3">
+	      	<button type="button" class="layui-btn startAll">恢复所有任务</button>
+	    </div>
+	    <div class="layui-col-xs3">
+	      	<button type="button" class="layui-btn kztscrw">chrome控制台输出所有任务</button>
+	    </div>
+	    <div  class="layui-col-xs3">
+	      	<button type="button" class="layui-btn" id="syncAsset" >同步itsm资产</button>
+	    </div>
+  	</div>
+  	<div style="height: 20px;"></div>
+  	
+</div>
+<table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</body>
+
+<style>
+    .layui-table-view .layui-table[lay-size=lg] .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell, .layui-table-tool-panel li {
+        overflow: hidden;
+        text-overflow: inherit;
+        white-space: inherit;
+    }
+
+    .layui-table-cell {
+         padding: inherit
+
+    }
+
+	.layui-table-cell{
+		height:36px;
+		line-height: 36px;
+	}
+</style>
+<script th:src="@{../layui/layui.js}"></script>
+<script th:inline="none">
+    layui.use(['table', 'form','layer'], function () {
+        var $ = layui.jquery,
+        table = layui.table;
+        var layer = layui.layer;
+      	var opt=  {
+			page: true
+            ,id:"table1"
+            ,elem: '#dataTable'
+            ,type:'checkbox'
+            , url: '/task/list'
+            , method: 'post'
+			, cellMinWidth: 200
+            , cols: [[
+            {title: '序号', type: 'numbers'}
+            , {type:'checkbox'}
+            , {field: 'targetHandle',  title: '指标名称'}
+            , {field: 'taskName', title: '定时任务名称'}
+            , {field: 'assetListStr', title: '设备名称'}
+            , {field: 'ip', title: '设备ip'}
+            , {field: 'taskStatus',  title: '采集状态'}
+            , {field: 'targetDescription',  title: '指标描述'}
+            , {field: 'assetMode',  title: '设备类型'}
+            , {field: 'cronExpress',  title: 'cron表达式'}
+            , {field: 'command', title: '采集命令'}
+            , {field: 'targetHandle',  title: '采集处理类'}
+            , {field: 'lastTime',  title: '最后一次采集时间'}
+            , {field: 'collectBody',title: '采集到信息',width:2500}
+        ]]
+            ,parseData:function(res){ //res 即为原始返回的数据
+
+              var list=res.data.list;
+              for (var i = 0; i <list.length ; i++) {
+                  var assetListStr='';
+                  if (list[i].asset){
+                      list[i].assetListStr=list[i].asset.name
+                      list[i].ip=list[i].asset.ip
+                  }
+
+				  if (list[i].collectBody){
+					  list[i].collectBody=list[i].collectBody.replace(/\\/g,'');
+				  }
+              }
+
+              return {
+                  "code": res.code, //解析接口状态
+                  "msg": res.message, //解析提示文本
+                  "count": res.data.total, //解析数据长度
+                  "data": list //解析数据列表
+              };
+        }
+        }
+        table.render(opt);
+      	//单击变色
+		table.on('row(dataTable)', function(obj){
+			//console.log(obj.tr) //得到当前行元素对象
+			$('tr').removeClass("layui-bg-green")
+			$(obj.tr).addClass("layui-bg-green")
+		});
+		//双击展示详情
+		table.on('rowDouble(dataTable)', function(obj){
+			if (obj.data&&obj.data.collectBody){
+				layer.alert(obj.data.collectBody);
+				console.log(obj.data.collectBody)
+			}else {
+				layer.msg('暂无采集数据')
+			}
+
+		});
+      	//按指标搜索查询
+      	$(".searchTab").on("click", function () {
+			var ip = $('#ipsearchTaskInput').val();
+      		var demoReload = $('#searchTask');
+      		table.reload('table1', {
+      	        page: {
+      	          curr: 1 //重新从第 1 页开始
+      	        }
+      	        ,where: {
+					targetDescription: demoReload.val(),
+					ip: ip
+      	        }
+      	      }, 'data');
+      	})
+		//按指标IP进行搜索
+		$("#searchTask2").on("click", function () {
+			var ip = $('#ipsearchTaskInput').val();
+			var demoReloadV = $('#searchTask').val();
+			table.reload('table1', {
+				page: {
+					curr: 1 //重新从第 1 页开始
+				}
+				,where: {
+					ip: ip,
+					targetDescription:demoReloadV
+				}
+			}, 'data');
+		})
+      	
+      	//初始化下拉框
+      	$.post("/task/targetList", "", function (result) {
+            var list = result.data;
+            $("#searchTask").empty();
+            $("#searchTask").append("<option value=''>请选择筛选指标</option>");
+            for (var k in list) {
+                var targetDescription = list[k].targetDescription;
+                var option = "<option data-code='" + targetDescription + "' value='" + targetDescription + "'>" + targetDescription + "</option>";
+                /* if (orgId === targetName) {
+                    option = "<option data-code='" + list[k].targetName + "' value='" + targetName + "' selected>" + list[k].title + "</option>";
+                } */
+                $("#searchTask").append(option);
+            }
+        })
+
+
+      	
+        // 暂停所有任务
+        $(".pauseAll").on("click", function () {
+            $.post("/task/pauseAll", {}, function (data) {
+                layer.msg(data.msg)
+                table.reload('table1',opt)
+            }, "json")
+        })
+
+        // 恢复所有任务
+        $(".startAll").on("click", function () {
+            $.post("/task/startAll", {}, function (data) {
+                table.reload('table1',opt)
+
+            }, "json")
+        })
+
+        // chrome控制台输出所有任务
+        $(".kztscrw").on("click", function () {
+            $.post("/task/showAllTask", {}, function (data) {
+                console.log(JSON.stringify(data))
+                alert('请在chrome控制台查看所有任务');
+
+            }, "json")
+        })
+
+        // 暂停任务
+        $(".ztrwbtn").click(function () {
+            $.post("/task/pauseJobByName", {name: $('#ztrwtext').val()}, function (data) {
+                table.reload('table1',opt)
+            });
+        })
+
+        // 恢复任务
+        $(".hfrwtbtn").click(function () {
+            $.post("/task/recoveryJobByName", {name: $('#hfrwtext').val()}, function (data) {
+                table.reload('table1',opt)
+            });
+        })
+
+
+		// 同步资产
+		$("#syncAsset").click(function () {
+			layer.confirm('同步资产会导致采集器重新启动,是否同步',{icon: 3, title:'提示'},function () {
+				var index = layer.load();
+				$.post("/task/syncCenterAsset", {}, function (data) {
+					setTimeout(function(){
+						layer.close(index);
+						layer.msg('同步成功')
+						table.reload('table1',opt)}, 3000);
+				});
+			})
+
+		})
+
+    });
+
+
+</script>
+</html>

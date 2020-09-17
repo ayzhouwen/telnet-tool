@@ -1,0 +1,40 @@
+logging:
+  file: log/collect.log
+  config: classpath:logback.xml
+
+spring:
+  datasource:
+#    url: jdbc:sqlite:D:\\wrapper\\lib\\collect.db
+    url: jdbc:sqlite:D:\\zw\\test\\sqlitedbtmp\\c2.0\\collect.db
+    driver-class-name: org.sqlite.JDBC
+
+  thymeleaf:
+    servlet:
+      content-type: text/html
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    prefix: classpath:/templates/
+    suffix: .html
+
+server:
+  port: 9083
+  compression:
+    min-response-size: 512
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/plain,text/css,application/x-javascript
+
+
+
+mybatis-plus:
+  type-aliases-package: com.jcca.entity
+  mapper-locations: classpath:/mapper/*.xml
+  # 驼峰命名
+  configuration:
+    map-underscore-to-camel-case: true
+    # 打印sql
+  log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+
+

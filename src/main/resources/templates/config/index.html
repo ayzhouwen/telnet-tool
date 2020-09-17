@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{../layui/css/layui.css}">
+</head>
+<body>
+
+<div>
+    <form class="layui-form" action="">
+        <button type="button" class="layui-btn" id="configPush">配置本车站IP</button>
+    </form>
+</div>
+
+
+
+<script id="configPushTpl" type="text/html">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <p style="color: red">注意:配置当前车站使用的通讯地址IP</p>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">当前地址</label>
+            <div class="layui-input-block">
+                <input type="text" lay-verify="title" autocomplete="off" placeholder="请输入IP地址" class="layui-input pushv"  value={{pushUrl}}>
+            </div>
+        </div>
+    </form>
+</script>
+
+</body>
+
+<style>
+    .layui-table-view .layui-table[lay-size=lg] .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell, .layui-table-tool-panel li {
+        overflow: hidden;
+        text-overflow: inherit;
+        white-space: inherit;
+    }
+
+    .layui-table-cell {
+         padding: inherit
+
+    }
+</style>
+<script th:inline="javascript">
+    var pushUrl = [[${pushUrl}]];
+</script>
+
+<script th:src="@{../layui/layui.js}"></script>
+<script th:inline="none">
+    var laytpl ;
+    var layer;
+    var jq
+
+    layui.use('laytpl', function(){
+        laytpl = layui.laytpl;
+    });
+
+
+    layui.use('layer', function(){ //独立版的layer无需执行这一句
+        var $ = layui.jquery, layer = layui.layer; //
+        jq=layui.jquery;
+        $('#configPush').on('click', function(){
+            var string =  laytpl($('#configPushTpl').html()).render({
+                pushUrl:pushUrl
+            });
+            layer.open({
+                area: ['500px', '300px']
+                ,type: 1
+                ,offset: 'auto' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+                ,id: 'layerDemo'+'auto' //防止重复弹出
+                ,content: string
+                ,btn: '确定修改'
+                ,btnAlign: 'c' //按钮居中
+                ,shade: 0 //不显示遮罩
+                ,yes: function(){
+                    jq.ajax({
+                        type: "post",
+                        url: '/config/setPushUrl',
+                        async: false, // 使用同步方式
+                        data: JSON.stringify({pushUrl:jq('.pushv').val()}),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function(data) {
+                            layer.msg(data.msg)
+                        }
+                    });
+            }
+        });
+    })
+
+    })
+</script>
+</html>

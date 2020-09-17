@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{../layui/css/layui.css}">
+</head>
+<body>
+
+<div>
+    <form class="layui-form" action="">
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">运行sql</label>
+            <div class="layui-input-block">
+                <textarea id="sqldesc" name="desc" placeholder="请输入sql" class="layui-textarea">
+                    SELECT * FROM T_CPU ORDER BY ID desc LIMIT 1
+                </textarea>
+                <div>
+                    <button id="dosql" type="button" class="layui-btn layui-btn-radius  layui-btn-danger" style="margin-top: 20px">运行</button>
+                </div>
+
+            </div>
+
+        </div>
+
+        运行结果:
+        <hr class="layui-bg-red">
+        <div id="sqlrep">
+
+        </div>
+    </form>
+</div>
+
+表结构参考:
+<hr class="layui-bg-green">
+<table class="layui-hide" id="dataTable"></table>
+</body>
+
+<style>
+    .layui-table-view .layui-table[lay-size=lg] .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell, .layui-table-tool-panel li {
+        overflow: hidden;
+        text-overflow: inherit;
+        white-space: inherit;
+    }
+
+    .layui-table-cell {
+         padding: inherit
+
+    }
+</style>
+<script th:src="@{../layui/layui.js}"></script>
+<script th:inline="none">
+    layui.use(['table', 'form','code'], function () {
+        var $ = layui.jquery,
+            table = layui.table;
+      var opt=  {
+            id:"table1"
+            ,elem: '#dataTable'
+                ,type:'checkbox'
+            , url: '/sql/gettable'
+            , cellMinWidth: 80
+            , method: 'post'
+            ,contentType:'application/json'
+            , cols: [[
+            {title: '序号', type: 'numbers'}
+            , {type:'checkbox'}
+            , {field: 'type',  title: '类型',width:100}
+            , {field: 'name', title: '名称',width:250}
+            , {field: 'sql', title: '初始化语句',width:400}
+        ]]
+            ,parseData:function(res){ //res 即为原始返回的数据
+              var list=res.data;
+              return {
+                  "code": res.code, //解析接口状态
+                  "msg": res.message, //解析提示文本
+                  "count": res.total, //解析数据长度
+                  "data": list //解析数据列表
+              };
+        }
+        }
+        table.render(opt);
+
+        // 运行查询sql
+        $("#dosql").on("click", function () {
+            $.ajax({
+                type: 'POST',
+                url: "/sql/selectsql",
+                data: JSON.stringify({sql:$('#sqldesc').val()}),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var str=JSON.stringify(data);
+                    console.log('sql运行结果:',data);
+                    $('#sqlrep').text(str);
+                }
+            });
+        })
+
+
+
+
+
+    });
+
+
+</script>
+</html>
