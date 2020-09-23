@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{../layui/css/layui.css}">
+</head>
+<body>
+
+<div>
+
+
+
+
+  	
+	<div style="height: 20px;"></div>
+
+  	<div style="height: 20px;"></div>
+  	
+</div>
+<table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</body>
+
+<style>
+    .layui-table-view .layui-table[lay-size=lg] .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell{
+        height: auto;
+    }
+    .layui-table-cell, .layui-table-tool-panel li {
+        overflow: hidden;
+        text-overflow: inherit;
+        white-space: inherit;
+    }
+
+    .layui-table-cell {
+         padding: inherit
+
+    }
+
+	.layui-table-cell{
+		height:36px;
+		line-height: 36px;
+	}
+</style>
+<script th:src="@{../layui/layui.js}"></script>
+<script th:inline="none">
+    layui.use(['table', 'form','layer'], function () {
+        var $ = layui.jquery,
+        table = layui.table;
+        var layer = layui.layer;
+      	var opt=  {
+			page: true
+            ,id:"table1"
+            ,elem: '#dataTable'
+            ,type:'checkbox'
+            , url: '/business/collect_index_list'
+            , method: 'post'
+			, cellMinWidth: 200
+            , cols: [[
+            {title: '序号', type: 'numbers'}
+            // , {type:'checkbox'}
+            // , {field: 'id',  title: 'id'}
+            , {field: 'ip', title: '设备ip'}
+            , {field: 'interfaceName', title: '端口名称'}
+            , {field: 'cycleId', title: '采集周期ID'}
+            , {field: 'stationGroupId', title: '车站分组id'}
+            , {field: 'oneInBytes', title: '第一次监控流入字节'}
+            , {field: 'twoInBytes',  title: '第二次监控流入字节'}
+			, {field: 'kbinBytesDiff', title: '两次差值流入KB数'}
+			, {field: 'oneOutBytes', title: '第一次监控流出字节'}
+			, {field: 'twoOutBytes',  title: '第二次监控流出字节'}
+			, {field: 'kboutBytesDiff',  title: '两次差值流出KB数'}
+			, {field: 'inRate', title: '监控流入速率KB/S'}
+			, {field: 'outRate',  title: '监控流出速率KB/S'}
+            , {field: 'interval',  title: '采集间隔(秒)'}
+            , {field: 'startTime',  title: '开始采集时间'}
+            , {field: 'endTime',  title: '结束采集时间'}
+			, {field: 'sysRuntimeMs',  title: '调度器运行时间(秒)'}
+			, {field: 'startTime',  title: '调度开始时间'}
+			, {field: 'endTime',  title: '调度结束时间'}
+			, {field: 'kbsysSumReceiveByte',  title: '调度器统计流入KB数'}
+			, {field: 'kbsysSumSendByte',  title: '调度器统计流出Kb数'}
+			, {field: 'sysinRate', title: '调度器统计流入速率KB/S'}
+			, {field: 'sysoutRate',  title: '调度器统计流出速率KB/S'}
+            , {field: 'sysDispatch',  title: '调度器分配任务数'}
+            , {field: 'sysSend',  title: '调度器发送数'}
+            , {field: 'sysRevice',  title: '调度器接收数'}
+            , {field: 'sysError',  title: '调度器收发错误数'}
+            , {field: 'sysLastSendTime',  title: '上次发送时间'}
+            , {field: 'sysLastDispatchTime',  title: '上次调度分配任务时间'}
+            , {field: 'sysLastReviceTime',  title: '上次接收请求时间'}
+            , {field: 'sysLastErrorTime',  title: '上次收发发错误时间'}
+            , {field: 'sysLastHandleCompleteTime',  title: '上次请求处理完成时间'}
+            , {field: 'sysLastHandleErrorTime',  title: '上次处理错误时间'}
+            , {field: 'sysHandleComplete',  title: '调度完成数'}
+            , {field: 'sysHandleError',  title: '处理错误数'}
+            , {field: 'sysHandleError',  title: '处理错误数'}
+        ]]
+            ,parseData:function(res){ //res 即为原始返回的数据
+
+              var list=res.data.list;
+              for (var i = 0; i <list.length ; i++) {
+				  var e=list[i];
+				  // e.kbin=1*e.inBytes/1024;
+				  // e.kbout=1*e.outBytes/1024;
+				  e.interval=e.intervalMs/1000
+				  e.sysRuntimeMs=toDecimal(e.sysRuntimeMs/1000,0);
+				  e.kbinBytesDiff=toDecimal(e.inBytesDiff/1024,2);
+				  e.kboutBytesDiff=toDecimal(e.outBytesDiff/1024,2);
+				  e.inRate=toDecimal(1.0*e.kbinBytesDiff/e.interval,2)
+				  e.outRate=toDecimal(1.0*e.kboutBytesDiff/e.interval,2)
+
+				  e.kbsysSumReceiveByte=toDecimal(e.sysSumReceiveByte/1024,2)
+				  e.kbsysSumSendByte=toDecimal(e.sysSumSendByte/1024,2)
+				  e.sysinRate=toDecimal(1.0*e.kbsysSumReceiveByte/e.sysRuntimeMs,2)
+				  e.sysoutRate=toDecimal(1.0*e.kbsysSumSendByte/e.sysRuntimeMs,2)
+
+              }
+
+              return {
+                  "code": res.code, //解析接口状态
+                  "msg": res.message, //解析提示文本
+                  "count": res.data.total, //解析数据长度
+                  "data": list //解析数据列表
+              };
+        }
+        }
+        table.render(opt);
+      	//单击变色
+		table.on('row(dataTable)', function(obj){
+			//console.log(obj.tr) //得到当前行元素对象
+			$('tr').removeClass("layui-bg-green")
+			$(obj.tr).addClass("layui-bg-green")
+		});
+
+
+
+
+
+
+    });
+
+	function toDecimal(x, n) {
+		var num = arguments[1] ? arguments[1] : 2;
+		n=num;
+		var f = parseFloat(x);
+		function  getN(n){
+			var sum =1;
+			for (var i=0 ;i< n;i++){
+				sum*=10;
+			}
+			return sum ;
+		}
+		if (isNaN(f)) {
+			return 0;
+		}
+
+		f = Math.round(x * getN(n)) / getN(n);
+		return f;
+	}
+</script>
+</html>

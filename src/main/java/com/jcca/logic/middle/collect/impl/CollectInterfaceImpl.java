@@ -70,25 +70,7 @@ public class CollectInterfaceImpl {
                 try {
 
                     if (!pause){
-                        TelnetUtil telnet = new TelnetUtil(ip, user, password,password2,telnetPort,interfaceName);
-                        //  System.setOut(new PrintStream("D:/telnet.txt"));
-                        telnet.connect();
-                        String data=telnet.getInterfaceData();
-                        Date now=new Date();
-                        long inBytes= analysisData("packets input,",data);
-                        long outBytes= analysisData("packets output,",data);
-                        telnet.disconnect();
-                        InterfaceMonitor interfaceMonitor=new InterfaceMonitor();
-                        interfaceMonitor.setIp(ip);
-                        interfaceMonitor.setCollectDate(DateUtil.format(now, "yyyyMMddHHmmss"));
-                        interfaceMonitor.setId(MyIdUtil.getIncId());
-                        interfaceMonitor.setInBytes(inBytes);
-                        interfaceMonitor.setOutBytes(outBytes);
-                        interfaceMonitor.setInterfaceName(interfaceName);
-                        interfaceMonitor.setIntervalMs(intervalMs);
-                        interfaceMonitor.setInBytesDiff(0L);
-                        interfaceMonitor.setOutBytesDiff(0L);
-
+                        InterfaceMonitor interfaceMonitor=  getCollectData();
                         //获取上次的最新数据
                         IPage<InterfaceMonitor> pageObj = PagePlugin.startPageT(1, 1, InterfaceMonitor.class);
                         QueryWrapper<InterfaceMonitor> query = new QueryWrapper<InterfaceMonitor>();
@@ -99,9 +81,9 @@ public class CollectInterfaceImpl {
                             InterfaceMonitor prev=list.get(0);
                             interfaceMonitor.setInBytesDiff(interfaceMonitor.getInBytes()-prev.getInBytes());
                             interfaceMonitor.setOutBytesDiff(interfaceMonitor.getOutBytes()-prev.getOutBytes());
+                            Date now=new Date();
                             interfaceMonitor.setIntervalMs(DateUtil.betweenMs(now, MyDateUtil.yyyyMMddHHmmss2Date(prev.getCollectDate())));
                         }
-
                         interfaceMonitorMapper.insert(interfaceMonitor);
                     }
                     try {
@@ -141,5 +123,29 @@ public class CollectInterfaceImpl {
 
         return -1;
     };
+
+
+
+    public InterfaceMonitor getCollectData(){
+        TelnetUtil telnet = new TelnetUtil(ip, user, password,password2,telnetPort,interfaceName);
+        //  System.setOut(new PrintStream("D:/telnet.txt"));
+        telnet.connect();
+        String data=telnet.getInterfaceData();
+        Date now=new Date();
+        long inBytes= analysisData("packets input,",data);
+        long outBytes= analysisData("packets output,",data);
+        telnet.disconnect();
+        InterfaceMonitor interfaceMonitor=new InterfaceMonitor();
+        interfaceMonitor.setIp(ip);
+        interfaceMonitor.setCollectDate(DateUtil.format(now, "yyyyMMddHHmmss"));
+        interfaceMonitor.setId(MyIdUtil.getIncId());
+        interfaceMonitor.setInBytes(inBytes);
+        interfaceMonitor.setOutBytes(outBytes);
+        interfaceMonitor.setInterfaceName(interfaceName);
+        interfaceMonitor.setIntervalMs(intervalMs);
+        interfaceMonitor.setInBytesDiff(0L);
+        interfaceMonitor.setOutBytesDiff(0L);
+        return interfaceMonitor;
+    }
 
 }

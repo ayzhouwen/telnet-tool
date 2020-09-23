@@ -29,6 +29,11 @@ public class MyDateUtil {
     }
 
 
+    public static String ms2yyyyMMddHHmmss(long ms){
+        Date date= DateUtil.date(ms);
+        return date.toString();
+    }
+
 
     /**
      * 输出执行时间

@@ -48,7 +48,7 @@ route:
   #采集端口
   interface-name: Serial0/1/0:0
   #采集周期毫秒数
-  interval-ms: 10000
+  interval-ms: 30000
 
 
 

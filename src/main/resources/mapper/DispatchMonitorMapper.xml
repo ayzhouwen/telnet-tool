@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jcca.data.dao.common.mapper.DispatchMonitorMapper">
+<select id="getInfo" resultType="com.jcca.data.dao.common.entity.DispatchMonitor">
+    select * from dispatch_monitor where cycle_id=#{cycleId} and station_group_id =#{stationGroupId};
+</select>
+</mapper>

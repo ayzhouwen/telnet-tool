@@ -59,11 +59,11 @@
             , cols: [[
             {title: '序号', type: 'numbers'}
             // , {type:'checkbox'}
-            , {field: 'id',  title: 'id'}
+				// , {field: 'id',  title: 'id'}
             , {field: 'ip', title: '设备ip'}
             , {field: 'interfaceName', title: '端口名称'}
-            // , {field: 'inBytes', title: '流入字节数'}
-            // , {field: 'outBytes',  title: '流出字节数'}
+				, {field: 'inBytes', title: '流入字节数'}
+				, {field: 'outBytes', title: '流出字节数'}
 			// 	, {field: 'kbin', title: '流入KB数'}
 			// 	, {field: 'kbout',  title: '流出KB数'}
 				, {field: 'kbinBytesDiff', title: '差值流入KB数'}
@@ -81,7 +81,7 @@
 				  // e.kbin=1*e.inBytes/1024;
 				  // e.kbout=1*e.outBytes/1024;
 				  e.kbinBytesDiff=toDecimal(e.inBytesDiff/1024,2);
-				  e.kboutBytesDiff=toDecimal(e.inBytesDiff/1024,2);
+				  e.kboutBytesDiff = toDecimal(e.outBytesDiff / 1024, 2);
 				  e.inRate=toDecimal(1000*e.kbinBytesDiff/e.intervalMs,2)
 				  e.outRate=toDecimal(1000*e.kboutBytesDiff/e.intervalMs,2)
 				  e.interval=e.intervalMs/1000
